@@ -1,37 +1,39 @@
-import { openDB } from "idb";
+import { openDB } from 'idb';
 
 const initdb = async () =>
-  openDB("jate", 1, {
+  openDB('jate', 1, {
     upgrade(db) {
-      if (db.objectStoreNames.contains("jate")) {
-        console.log("[X] ERROR, JATE DATABASE EXIST!");
+      if (db.objectStoreNames.contains('jate')) {
+        console.log('jate database already exists');
         return;
       }
-      db.createObjectStore("jate", { keyPath: "id", autoIncrement: true });
-      console.log("[X] JATE DATABASE CREATED!");
+      db.createObjectStore('jate', { keyPath: 'id', autoIncrement: true });
+      console.log('jate database created');
     },
   });
 
 export const putDb = async (content) => {
-  const contactDb = await openDB("jate", 1);
-  const txt = contactDb.transaction("jate", "readwrite");
-  const store = txt.objectStore("jate");
-  const request = store.put({ id: 1, text: content });
+  console.log('PUT to the database');
+  const jateDb = await openDB('jate', 1);
+  const tx = jateDb.transaction('jate', 'readwrite');
+  const store = tx.objectStore('jate');
+  const request = store.put({ jate: content });
   const result = await request;
-  console.log("[x] TEXT ADDED IN DB", JSON.stringify(result));
+  console.log('🚀 - data saved to the database', result);
 };
 
 export const getDb = async () => {
-  const contactDb = await openDB("jate", 1);
-  const txt = contactDb.transaction("jate", "readonly");
-  const store = txt.objectStore("jate");
+  console.log('GET all from the database');
+  const jateDb = await openDB('jate', 1);
+  const tx = jateDb.transaction('jate', 'readonly');
+  const store = tx.objectStore('jate');
   const request = store.getAll();
   const result = await request;
-  if (result.length > 0) {
-    console.log("[x] GET INFORMATION IN DB", JSON.stringify(result));
-    return result[0].content;
-  }
-  return null;
-};
-
+  console.log(result);
+  const valuesArray = result.map((value) => value.jate);
+  console.log(valuesArray);
+  const currentValue = valuesArray.pop();
+  console.log(currentValue);
+  return currentValue;
+}
 initdb();
